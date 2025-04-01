@@ -1,47 +1,31 @@
 # KrishiAI - Smart Farming Assistant
 
-An AI-powered dashboard to help farmers make data-driven decisions for better crop management.
+An AI-powered farming assistant that helps farmers make data-driven decisions about crop selection and management.
 
 ## Features
+- Crop recommendation based on location and environmental factors
+- Weather forecast integration
+- Market price analysis
+- Detailed crop analysis with visualizations
+- Interactive map interface
 
-- Real-time field monitoring with NDVI tracking
-- AI-driven recommendations for irrigation and fertilization
-- Pest control alerts and management
-- WhatsApp integration for instant notifications
-- Multi-language support (English, Hindi, Tamil)
+## Setup Instructions
 
-## Setup
-
-1. Clone the repository
+1. Clone the repository:
 ```bash
-git clone <your-repo-url>
-cd hackathon
+git clone https://github.com/yourusername/krishiai.git
+cd krishiai
 ```
 
-2. Create virtual environment
+2. Create virtual environment:
 ```bash
-python -m venv project-env
-source project-env/bin/activate  # On Windows: project-env\Scripts\activate
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Install dependencies
+3. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run the application
-```bash
-streamlit run app.py
-```
-
-## Environment Variables
-
-Create a `.env` file with:
-```
-TWILIO_ACCOUNT_SID=your_sid
-TWILIO_AUTH_TOKEN=your_token
-```
-
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+4. Create .env file and add your API keys:

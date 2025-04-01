@@ -16,24 +16,31 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
 # Virtual Environment
-project-env/
 venv/
+project-env/
 ENV/
+
+# Database
+*.db
+*.sqlite3
 
 # Environment Variables
 .env
 
-# IDE
-.vscode/
+# IDE specific files
 .idea/
+.vscode/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Logs
+*.log
+
+# Local data
+farmer_data.csv
