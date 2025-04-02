@@ -33,6 +33,14 @@ ENV/
 # Environment Variables
 .env
 
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Conda
+/conda-env/
+
 # IDE specific files
 .idea/
 .vscode/
