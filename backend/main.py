@@ -16,6 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from dotenv import load_dotenv
 import aiohttp
+from aiohttp import ClientTimeout
 
 # First, drop the existing database file
 if os.path.exists("krishiai.db"):
@@ -322,36 +323,62 @@ async def get_weather_data(lat: float, lon: float):
         print(f"Weather API error: {str(e)}")
         return None
 
-async def get_weather_forecast(lat: float, lon: float, days: int = 7):
+async def get_weather_forecast(lat: float, lon: float, days: int = 180):  # Changed to 180 days
     try:
         if not OPENWEATHER_API_KEY:
-            # Return dummy forecast if no API key
+            # Return dummy forecast for 6 months
             forecast = []
             base_temp = 25.0
             base_humidity = 65.0
             base_rainfall = 50.0
             for i in range(days):
                 date = (datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d')
+                # More realistic seasonal variations
+                month = (datetime.now() + timedelta(days=i)).month
+                # Seasonal temperature adjustments
+                seasonal_temp = base_temp + 5 * np.sin(2 * np.pi * (i/365))  # Yearly cycle
+                temp = seasonal_temp + np.random.normal(0, 2)
+                
+                # Seasonal humidity and rainfall
+                if 6 <= month <= 9:  # Monsoon
+                    humidity = base_humidity + 20 + np.random.normal(0, 5)
+                    rainfall = max(0, base_rainfall * 2 + np.random.normal(0, 30))
+                elif 10 <= month <= 11:  # Post-monsoon
+                    humidity = base_humidity + 10 + np.random.normal(0, 5)
+                    rainfall = max(0, base_rainfall + np.random.normal(0, 20))
+                elif month <= 2:  # Winter
+                    humidity = base_humidity - 10 + np.random.normal(0, 5)
+                    rainfall = max(0, base_rainfall * 0.3 + np.random.normal(0, 10))
+                else:  # Summer
+                    humidity = base_humidity - 20 + np.random.normal(0, 5)
+                    rainfall = max(0, base_rainfall * 0.1 + np.random.normal(0, 5))
+                
                 forecast.append(WeatherForecast(
                     date=date,
-                    temperature=base_temp + np.random.normal(0, 2),
-                    humidity=base_humidity + np.random.normal(0, 5),
-                    rainfall=max(0, base_rainfall + np.random.normal(0, 10))
+                    temperature=round(temp, 1),
+                    humidity=round(humidity, 1),
+                    rainfall=round(rainfall, 1)
                 ))
             return forecast
-            
+
+        # For the actual API, we'll continue with 7-day forecast as OpenWeather free tier limitation
+        timeout = ClientTimeout(total=10)
         url = f"http://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={OPENWEATHER_API_KEY}&units=metric"
-        async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(url) as response:
                 if response.status == 200:
                     data = await response.json()
                     forecast = []
-                    for item in data['list'][:days*8:8]:
+                    for item in data['list'][:days*8:8]:  # Get daily data
+                        temp = item['main']['temp']
+                        humidity = item['main']['humidity']
+                        rainfall = item.get('rain', {}).get('3h', 0) * 8
+                        
                         forecast.append(WeatherForecast(
                             date=datetime.fromtimestamp(item['dt']).strftime('%Y-%m-%d'),
-                            temperature=item['main']['temp'],
-                            humidity=item['main']['humidity'],
-                            rainfall=item.get('rain', {}).get('3h', 0) * 8
+                            temperature=round(temp, 1),
+                            humidity=round(humidity, 1),
+                            rainfall=round(rainfall, 1)
                         ))
                     return forecast
                 else:
@@ -477,39 +504,125 @@ async def predict_crop(data: CropPredictionRequest):
 @app.post("/detailed_analysis/", response_model=DetailedAnalysisResponse)
 async def get_detailed_analysis(data: DetailedAnalysisRequest):
     try:
-        # Get weather forecast
+        # Get weather forecast with error handling
         forecast = await get_weather_forecast(data.latitude, data.longitude)
         if not forecast:
-            raise HTTPException(status_code=500, detail="Failed to fetch weather forecast")
+            forecast = []  # Use empty list instead of failing
+            print("Using empty forecast due to API failure")
 
-        # Get market trends
+        # Get market trends with error handling
         market_history = await get_market_history(data.crop_name)
         if not market_history:
-            raise HTTPException(status_code=500, detail="Failed to fetch market history")
+            market_history = []
+            print("Using empty market history due to API failure")
 
-        # Create weather forecast graph
-        weather_dates = [f['date'] for f in forecast]
-        temps = [f['temperature'] for f in forecast]
-        humidity = [f['humidity'] for f in forecast]
-        rainfall = [f['rainfall'] for f in forecast]
+        # Create weather forecast graph with improved styling
+        weather_dates = [f.date for f in forecast]
+        temps = [f.temperature for f in forecast]
+        humidity = [f.humidity for f in forecast]
+        rainfall = [f.rainfall for f in forecast]
 
         weather_fig = go.Figure()
-        weather_fig.add_trace(go.Scatter(x=weather_dates, y=temps, name="Temperature"))
-        weather_fig.add_trace(go.Scatter(x=weather_dates, y=humidity, name="Humidity"))
-        weather_fig.add_trace(go.Bar(x=weather_dates, y=rainfall, name="Rainfall"))
-        weather_fig.update_layout(title="7-Day Weather Forecast")
+        
+        # Temperature line with monthly average trendline
+        monthly_temps = []
+        monthly_dates = []
+        for i in range(0, len(temps), 30):
+            monthly_temps.append(np.mean(temps[i:i+30]))
+            monthly_dates.append(weather_dates[i])
 
-        # Create market trends graph
-        market_dates = [m['date'] for m in market_history]
-        prices = [m['price'] for m in market_history]
-        volumes = [m['volume'] for m in market_history]
+        weather_fig.add_trace(go.Scatter(
+            x=weather_dates,
+            y=temps,
+            name="Daily Temperature",
+            line=dict(color="#FF9900", width=1),
+            hovertemplate="Temp: %{y}°C<br>Date: %{x}"
+        ))
+        
+        weather_fig.add_trace(go.Scatter(
+            x=monthly_dates,
+            y=monthly_temps,
+            name="Monthly Average",
+            line=dict(color="#FF0000", width=2, dash='dash'),
+            hovertemplate="Avg Temp: %{y:.1f}°C<br>Month: %{x}"
+        ))
+        
+        # Humidity line
+        weather_fig.add_trace(go.Scatter(
+            x=weather_dates,
+            y=humidity,
+            name="Humidity",
+            line=dict(color="#00CC96", width=2),
+            hovertemplate="Humidity: %{y}%<br>Date: %{x}"
+        ))
+        
+        # Rainfall bars
+        weather_fig.add_trace(go.Bar(
+            x=weather_dates,
+            y=rainfall,
+            name="Rainfall",
+            marker_color="#636EFA",
+            hovertemplate="Rainfall: %{y}mm<br>Date: %{x}"
+        ))
+        
+        # Update layout for 6-month view
+        weather_fig.update_layout(
+            title="6-Month Weather Forecast",
+            xaxis_title="Date",
+            yaxis_title="Temperature (°C) / Humidity (%) / Rainfall (mm)",
+            hovermode='x unified',
+            showlegend=True,
+            template="plotly_white",
+            xaxis=dict(
+                rangeselector=dict(
+                    buttons=list([
+                        dict(count=7, label="1w", step="day", stepmode="backward"),
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=3, label="3m", step="month", stepmode="backward"),
+                        dict(step="all", label="6m")
+                    ])
+                )
+            )
+        )
+
+        # Create market trends graph with improved styling
+        market_dates = [m.date for m in market_history]
+        prices = [m.price for m in market_history]
+        volumes = [m.volume for m in market_history]
 
         price_fig = go.Figure()
-        price_fig.add_trace(go.Scatter(x=market_dates, y=prices, name="Price"))
-        price_fig.add_trace(go.Bar(x=market_dates, y=volumes, name="Volume", yaxis="y2"))
+        
+        # Price line
+        price_fig.add_trace(go.Scatter(
+            x=market_dates,
+            y=prices,
+            name="Price",
+            line=dict(color="#FF9900", width=2),
+            hovertemplate="Price: ₹%{y:.2f}/kg<br>Date: %{x}"
+        ))
+        
+        # Volume bars
+        price_fig.add_trace(go.Bar(
+            x=market_dates,
+            y=volumes,
+            name="Volume",
+            marker_color="#636EFA",
+            yaxis="y2",
+            hovertemplate="Volume: %{y:,} kg<br>Date: %{x}"
+        ))
+        
         price_fig.update_layout(
             title=f"{data.crop_name} Price Trends",
-            yaxis2=dict(title="Volume", overlaying="y", side="right")
+            xaxis_title="Date",
+            yaxis_title="Price (₹/kg)",
+            yaxis2=dict(
+                title="Volume (kg)",
+                overlaying="y",
+                side="right"
+            ),
+            hovermode='x unified',
+            showlegend=True,
+            template="plotly_white"
         )
 
         return DetailedAnalysisResponse(
@@ -521,7 +634,10 @@ async def get_detailed_analysis(data: DetailedAnalysisRequest):
 
     except Exception as e:
         print(f"Detailed analysis error: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate detailed analysis: {str(e)}"
+        )
 
 def get_season_score(params, current_season):
     # Define season compatibility for different temperature and rainfall ranges
