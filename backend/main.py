@@ -17,6 +17,7 @@ import plotly.graph_objects as go
 from dotenv import load_dotenv
 import aiohttp
 from aiohttp import ClientTimeout
+from crop_advisor import get_crop_schedule
 
 # First, drop the existing database file
 if os.path.exists("krishiai.db"):
@@ -152,7 +153,12 @@ class DetailedAnalysisResponse(BaseModel):
     weather_graph: dict
     price_graph: dict
 
-# Dependency
+class CropScheduleRequest(BaseModel):
+    crop_name: str
+    state: str
+    season: str
+
+[# Dependency
 def get_db():
     db = SessionLocal()
     try:
@@ -638,6 +644,13 @@ async def get_detailed_analysis(data: DetailedAnalysisRequest):
             status_code=500,
             detail=f"Failed to generate detailed analysis: {str(e)}"
         )
+
+@app.post("/get_crop_schedule/")
+async def get_schedule(data: CropScheduleRequest):
+    schedule = get_crop_schedule(data.crop_name, data.state, data.season)
+    if schedule:
+        return {"schedule": schedule}
+    raise HTTPException(status_code=500, detail="Failed to generate crop schedule")
 
 def get_season_score(params, current_season):
     # Define season compatibility for different temperature and rainfall ranges
