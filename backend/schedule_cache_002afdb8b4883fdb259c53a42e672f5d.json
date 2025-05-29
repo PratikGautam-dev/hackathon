@@ -1,0 +1,180 @@
+{
+  "crop": "Cotton",
+  "state": "Maharashtra",
+  "season": "Kharif",
+  "categories": {
+    "soil_preparation": [
+      {
+        "week_number": 1,
+        "task_description": "Plow the field deeply to break the hardpan and improve aeration. Aim for a depth of 20-25 cm.",
+        "completed": false
+      },
+      {
+        "week_number": 1,
+        "task_description": "Apply 10-15 tons of well-decomposed farmyard manure (FYM) or compost per hectare and incorporate it into the soil during plowing.",
+        "completed": false
+      },
+      {
+        "week_number": 2,
+        "task_description": "Carry out harrowing 2-3 times to break the clods and achieve a fine tilth.",
+        "completed": false
+      },
+      {
+        "week_number": 2,
+        "task_description": "Conduct soil testing to determine nutrient deficiencies and pH levels. Based on the results, apply recommended doses of basal fertilizers.",
+        "completed": false
+      },
+      {
+        "week_number": 3,
+        "task_description": "Form ridges and furrows at the recommended spacing (e.g., 60-90 cm between rows depending on the variety and soil fertility).",
+        "completed": false
+      }
+    ],
+    "planting": [
+      {
+        "week_number": 3,
+        "task_description": "Procure certified cotton seeds of a suitable variety for Maharashtra's Kharif season (e.g., Bt cotton varieties). Treat seeds with recommended fungicides like Thiram or Carbendazim to protect against seed-borne diseases.",
+        "completed": false
+      },
+      {
+        "week_number": 4,
+        "task_description": "Sow the treated cotton seeds at the recommended depth (3-5 cm) in the furrows. Ensure proper spacing between seeds within the row.",
+        "completed": false
+      },
+      {
+        "week_number": 5,
+        "task_description": "Monitor the field for germination. Undertake gap filling within 7-10 days of sowing to maintain optimal plant population.",
+        "completed": false
+      }
+    ],
+    "irrigation": [
+      {
+        "week_number": 4,
+        "task_description": "Provide light irrigation immediately after sowing to ensure proper germination. Avoid over-watering.",
+        "completed": false
+      },
+      {
+        "week_number": 9,
+        "task_description": "Provide irrigation based on crop water requirements and weather conditions. Critical stages for irrigation are flowering and boll development. Avoid waterlogging.",
+        "completed": false
+      },
+      {
+        "week_number": 12,
+        "task_description": "Ensure adequate drainage in the field, especially during periods of heavy rainfall. Waterlogging can severely damage the cotton crop.",
+        "completed": false
+      }
+    ],
+    "fertilizer": [
+      {
+        "week_number": 6,
+        "task_description": "Apply the first dose of nitrogenous fertilizer (e.g., Urea or Ammonium Sulphate) as a top dressing, based on soil test recommendations and crop needs. Ensure proper placement near the plants.",
+        "completed": false
+      },
+      {
+        "week_number": 10,
+        "task_description": "Apply the second dose of nitrogenous fertilizer, along with potassium fertilizer if recommended by soil testing. Place the fertilizer near the plants and cover with soil.",
+        "completed": false
+      }
+    ],
+    "pest_management": [
+      {
+        "week_number": 7,
+        "task_description": "Carry out weeding operations (either manually or using herbicides) to remove weeds that compete with the cotton crop for nutrients and sunlight. Focus on the critical weed-free period.",
+        "completed": false
+      },
+      {
+        "week_number": 8,
+        "task_description": "Monitor the crop regularly for early signs of insect pests like aphids, jassids, and thrips. Take appropriate control measures, such as spraying with recommended insecticides, if the pest population exceeds the economic threshold level (ETL).",
+        "completed": false
+      },
+      {
+        "week_number": 11,
+        "task_description": "Continue monitoring for insect pests, especially bollworms. If bollworm infestation is observed, use recommended insecticides or biopesticides, considering the ETL. Practice Integrated Pest Management (IPM) strategies.",
+        "completed": false
+      }
+    ],
+    "general": []
+  },
+  "tasks": [
+    {
+      "week_number": 1,
+      "task_description": "Plow the field deeply to break the hardpan and improve aeration. Aim for a depth of 20-25 cm.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 1,
+      "task_description": "Apply 10-15 tons of well-decomposed farmyard manure (FYM) or compost per hectare and incorporate it into the soil during plowing.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 2,
+      "task_description": "Carry out harrowing 2-3 times to break the clods and achieve a fine tilth.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 2,
+      "task_description": "Conduct soil testing to determine nutrient deficiencies and pH levels. Based on the results, apply recommended doses of basal fertilizers.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 3,
+      "task_description": "Form ridges and furrows at the recommended spacing (e.g., 60-90 cm between rows depending on the variety and soil fertility).",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 3,
+      "task_description": "Procure certified cotton seeds of a suitable variety for Maharashtra's Kharif season (e.g., Bt cotton varieties). Treat seeds with recommended fungicides like Thiram or Carbendazim to protect against seed-borne diseases.",
+      "category": "planting"
+    },
+    {
+      "week_number": 4,
+      "task_description": "Sow the treated cotton seeds at the recommended depth (3-5 cm) in the furrows. Ensure proper spacing between seeds within the row.",
+      "category": "planting"
+    },
+    {
+      "week_number": 4,
+      "task_description": "Provide light irrigation immediately after sowing to ensure proper germination. Avoid over-watering.",
+      "category": "irrigation"
+    },
+    {
+      "week_number": 5,
+      "task_description": "Monitor the field for germination. Undertake gap filling within 7-10 days of sowing to maintain optimal plant population.",
+      "category": "planting"
+    },
+    {
+      "week_number": 6,
+      "task_description": "Apply the first dose of nitrogenous fertilizer (e.g., Urea or Ammonium Sulphate) as a top dressing, based on soil test recommendations and crop needs. Ensure proper placement near the plants.",
+      "category": "fertilizer"
+    },
+    {
+      "week_number": 7,
+      "task_description": "Carry out weeding operations (either manually or using herbicides) to remove weeds that compete with the cotton crop for nutrients and sunlight. Focus on the critical weed-free period.",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 8,
+      "task_description": "Monitor the crop regularly for early signs of insect pests like aphids, jassids, and thrips. Take appropriate control measures, such as spraying with recommended insecticides, if the pest population exceeds the economic threshold level (ETL).",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 9,
+      "task_description": "Provide irrigation based on crop water requirements and weather conditions. Critical stages for irrigation are flowering and boll development. Avoid waterlogging.",
+      "category": "irrigation"
+    },
+    {
+      "week_number": 10,
+      "task_description": "Apply the second dose of nitrogenous fertilizer, along with potassium fertilizer if recommended by soil testing. Place the fertilizer near the plants and cover with soil.",
+      "category": "fertilizer"
+    },
+    {
+      "week_number": 11,
+      "task_description": "Continue monitoring for insect pests, especially bollworms. If bollworm infestation is observed, use recommended insecticides or biopesticides, considering the ETL. Practice Integrated Pest Management (IPM) strategies.",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 12,
+      "task_description": "Ensure adequate drainage in the field, especially during periods of heavy rainfall. Waterlogging can severely damage the cotton crop.",
+      "category": "irrigation"
+    }
+  ]
+}

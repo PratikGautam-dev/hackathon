@@ -158,7 +158,7 @@ class CropScheduleRequest(BaseModel):
     state: str
     season: str
 
-[# Dependency
+# Dependency
 def get_db():
     db = SessionLocal()
     try:

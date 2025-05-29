@@ -1,0 +1,140 @@
+{
+  "crop": "Blackgram",
+  "state": "Maharashtra",
+  "season": "Kharif",
+  "categories": {
+    "soil_preparation": [
+      {
+        "week_number": 1,
+        "task_description": "Plow the field deeply to a depth of 20-25 cm. Expose the soil to sunlight for a week to kill soilborne pathogens and pests.",
+        "completed": false
+      },
+      {
+        "week_number": 2,
+        "task_description": "Carry out harrowing twice to break clods and level the field. Incorporate well-decomposed FYM (Farm Yard Manure) or compost at the rate of 5-10 tons per hectare during the final harrowing.",
+        "completed": false
+      }
+    ],
+    "planting": [
+      {
+        "week_number": 3,
+        "task_description": "Treat seeds with Rhizobium culture and Trichoderma viride to promote nodulation and protect against soilborne diseases. Use recommended dosage.",
+        "completed": false
+      },
+      {
+        "week_number": 4,
+        "task_description": "Sow seeds at a depth of 3-4 cm with a spacing of 30 cm between rows and 10 cm between plants. Ensure adequate moisture in the soil at the time of sowing.",
+        "completed": false
+      },
+      {
+        "week_number": 7,
+        "task_description": "Thin out excess seedlings to maintain proper spacing. Ensure only one healthy plant per hill.",
+        "completed": false
+      }
+    ],
+    "irrigation": [
+      {
+        "week_number": 5,
+        "task_description": "Provide light irrigation immediately after sowing, if there is insufficient moisture in the soil. Monitor for germination.",
+        "completed": false
+      },
+      {
+        "week_number": 9,
+        "task_description": "Provide critical irrigation at flowering and pod formation stages. Avoid waterlogging.",
+        "completed": false
+      }
+    ],
+    "fertilizer": [
+      {
+        "week_number": 8,
+        "task_description": "Apply first dose of fertilizer as per soil test recommendations. If soil test is not available, apply 20 kg N, 40 kg P2O5 and 20 kg K2O per hectare as basal dose.",
+        "completed": false
+      }
+    ],
+    "pest_management": [
+      {
+        "week_number": 6,
+        "task_description": "Apply pre-emergence herbicide like Pendimethalin 30 EC at 3.3 liters per hectare within 2-3 days of sowing to control weeds. ",
+        "completed": false
+      },
+      {
+        "week_number": 10,
+        "task_description": "Monitor for pests like aphids, whiteflies, and pod borers. If infestation is observed, spray appropriate insecticides like Dimethoate or Imidacloprid as per recommended dosage.",
+        "completed": false
+      },
+      {
+        "week_number": 11,
+        "task_description": "Monitor for diseases like yellow mosaic virus (YMV) and powdery mildew. Rogue out YMV-affected plants. Spray fungicides like Carbendazim or Hexaconazole for powdery mildew.",
+        "completed": false
+      },
+      {
+        "week_number": 12,
+        "task_description": "Hand weed or hoe to remove weeds and ensure proper aeration. Avoid damaging the plant roots.",
+        "completed": false
+      }
+    ],
+    "general": []
+  },
+  "tasks": [
+    {
+      "week_number": 1,
+      "task_description": "Plow the field deeply to a depth of 20-25 cm. Expose the soil to sunlight for a week to kill soilborne pathogens and pests.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 2,
+      "task_description": "Carry out harrowing twice to break clods and level the field. Incorporate well-decomposed FYM (Farm Yard Manure) or compost at the rate of 5-10 tons per hectare during the final harrowing.",
+      "category": "soil_preparation"
+    },
+    {
+      "week_number": 3,
+      "task_description": "Treat seeds with Rhizobium culture and Trichoderma viride to promote nodulation and protect against soilborne diseases. Use recommended dosage.",
+      "category": "planting"
+    },
+    {
+      "week_number": 4,
+      "task_description": "Sow seeds at a depth of 3-4 cm with a spacing of 30 cm between rows and 10 cm between plants. Ensure adequate moisture in the soil at the time of sowing.",
+      "category": "planting"
+    },
+    {
+      "week_number": 5,
+      "task_description": "Provide light irrigation immediately after sowing, if there is insufficient moisture in the soil. Monitor for germination.",
+      "category": "irrigation"
+    },
+    {
+      "week_number": 6,
+      "task_description": "Apply pre-emergence herbicide like Pendimethalin 30 EC at 3.3 liters per hectare within 2-3 days of sowing to control weeds. ",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 7,
+      "task_description": "Thin out excess seedlings to maintain proper spacing. Ensure only one healthy plant per hill.",
+      "category": "planting"
+    },
+    {
+      "week_number": 8,
+      "task_description": "Apply first dose of fertilizer as per soil test recommendations. If soil test is not available, apply 20 kg N, 40 kg P2O5 and 20 kg K2O per hectare as basal dose.",
+      "category": "fertilizer"
+    },
+    {
+      "week_number": 9,
+      "task_description": "Provide critical irrigation at flowering and pod formation stages. Avoid waterlogging.",
+      "category": "irrigation"
+    },
+    {
+      "week_number": 10,
+      "task_description": "Monitor for pests like aphids, whiteflies, and pod borers. If infestation is observed, spray appropriate insecticides like Dimethoate or Imidacloprid as per recommended dosage.",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 11,
+      "task_description": "Monitor for diseases like yellow mosaic virus (YMV) and powdery mildew. Rogue out YMV-affected plants. Spray fungicides like Carbendazim or Hexaconazole for powdery mildew.",
+      "category": "pest_management"
+    },
+    {
+      "week_number": 12,
+      "task_description": "Hand weed or hoe to remove weeds and ensure proper aeration. Avoid damaging the plant roots.",
+      "category": "pest_management"
+    }
+  ]
+}
