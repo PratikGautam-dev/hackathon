@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, validator
@@ -18,6 +18,9 @@ from dotenv import load_dotenv
 import aiohttp
 from aiohttp import ClientTimeout
 from crop_advisor import get_crop_schedule
+from PIL import Image
+import io
+import google.generativeai as genai
 
 # First, drop the existing database file
 if os.path.exists("krishiai.db"):
@@ -157,6 +160,9 @@ class CropScheduleRequest(BaseModel):
     crop_name: str
     state: str
     season: str
+
+class ChatMessage(BaseModel):
+    message: str
 
 # Dependency
 def get_db():
@@ -652,6 +658,50 @@ async def get_schedule(data: CropScheduleRequest):
         return {"schedule": schedule}
     raise HTTPException(status_code=500, detail="Failed to generate crop schedule")
 
+@app.get("/get_farmers/")
+async def get_farmers(state: str = "", crop: str = "", db: Session = Depends(get_db)):
+    try:
+        # Get farmers from database
+        query = db.query(Farmer)
+        
+        # Apply filters
+        if state:
+            query = query.filter(Farmer.state.ilike(f"%{state}%"))
+        
+        farmers = query.all()
+        
+        # Convert to list of dictionaries
+        farmer_list = []
+        for farmer in farmers:
+            # Get crops for this farmer
+            crops = [
+                {
+                    "name": "Rice",  # Replace with actual crop data once implemented
+                    "season": "Kharif",
+                    "expected_yield": 2000,
+                    "harvest_date": (datetime.now() + timedelta(days=90)).strftime("%Y-%m-%d")
+                }
+            ]
+            
+            farmer_dict = {
+                "id": farmer.id,
+                "name": farmer.name,
+                "state": farmer.state,
+                "district": "Local",  # Add district to Farmer model if needed
+                "phone": "+91 98765 43210",  # Add phone to Farmer model if needed
+                "crops": crops
+            }
+            
+            # Filter by crop if specified
+            if crop and not any(c["name"].lower() == crop.lower() for c in crops):
+                continue
+                
+            farmer_list.append(farmer_dict)
+        
+        return farmer_list
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 def get_season_score(params, current_season):
     # Define season compatibility for different temperature and rainfall ranges
     if current_season == "Summer":
@@ -670,3 +720,95 @@ def get_season_score(params, current_season):
         if 20 <= params['Temperature'] <= 30 and 50 <= params['Rainfall'] <= 100:
             return 1.0
         return 0.5
+
+from constants import CROP_DISEASES
+
+@app.post("/detect_disease/")
+async def detect_disease(file: UploadFile = File(...)):
+    try:
+        # Read and process the image
+        contents = await file.read()
+        image = Image.open(io.BytesIO(contents))
+        
+        # TODO: Add actual ML model for disease detection
+        # For now, return mock response
+        import random
+        crop = random.choice(list(CROP_DISEASES.keys()))
+        disease = random.choice(CROP_DISEASES[crop])
+        
+        treatments = {
+            "Bacterial leaf blight": "Apply streptomycin sulfate 90% and tetracycline hydrochloride 10% combination.",
+            "Brown spot": "Use fungicides containing hexaconazole or propiconazole.",
+            "Leaf blast": "Apply systemic fungicides like carbendazim or tricyclazole.",
+            "Yellow rust": "Spray propiconazole or tebuconazole fungicides.",
+            "Powdery mildew": "Apply sulfur-based fungicides.",
+            "Root rot": "Improve drainage and apply copper oxychloride.",
+        }
+        
+        return {
+            "disease": disease,
+            "confidence": round(random.uniform(0.7, 0.95), 2),
+            "treatment": treatments.get(disease, "Consult a local agricultural expert for treatment advice."),
+            "crop": crop
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Gemini AI integration
+# Load Gemini API key
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+async def get_gemini_response(prompt: str) -> str:
+    try:
+        # Configure the model to use gemini-pro
+        model = genai.GenerativeModel('gemini-pro')
+        
+        # Add farming context to the prompt
+        context = """You are an expert farming assistant with deep knowledge of:
+        - Crop management and cultivation techniques
+        - Pest and disease control
+        - Soil health and fertilization
+        - Irrigation methods
+        - Weather impact on farming
+        - Modern farming technologies
+        - Sustainable farming practices
+        
+        Provide practical, actionable advice for farmers. Be specific and explain concepts clearly.
+        """
+        
+        full_prompt = f"{context}\n\nFarmer's Question: {prompt}\n\nAssistant:"
+        
+        # Generate response with retry logic
+        for _ in range(3):  # Retry up to 3 times
+            try:
+                response = model.generate_content(full_prompt)
+                
+                # Check if response is blocked
+                if response.prompt_feedback.block_reason:
+                    return "I apologize, but I cannot provide an answer to that question. Please try rephrasing it."
+                    
+                # Get response parts
+                response_parts = []
+                for part in response.parts:
+                    if part.text:
+                        response_parts.append(part.text)
+                
+                if response_parts:
+                    return " ".join(response_parts)
+                    
+                return "I apologize, but I couldn't generate a proper response. Please try asking your question again."
+            except Exception as e:
+                print(f"Retry attempt failed: {str(e)}")
+                continue
+    except Exception as e:
+        print(f"Gemini API error: {str(e)}")
+        return "I apologize, but I'm having trouble connecting to my knowledge base. Please try asking your question again."
+
+@app.post("/chat/")
+async def chat_with_farmer(message: ChatMessage):
+    try:
+        response = await get_gemini_response(message.message)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
