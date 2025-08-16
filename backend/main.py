@@ -21,6 +21,7 @@ from crop_advisor import get_crop_schedule
 from PIL import Image
 import io
 import google.generativeai as genai
+import asyncio
 
 # First, drop the existing database file
 if os.path.exists("krishiai.db"):
@@ -757,58 +758,47 @@ async def detect_disease(file: UploadFile = File(...)):
 # Gemini AI integration
 # Load Gemini API key
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+print("🔍 Using GEMINI_API_KEY:", GEMINI_API_KEY)
 genai.configure(api_key=GEMINI_API_KEY)
-
+class ChatMessage(BaseModel):
+    message: str
 async def get_gemini_response(prompt: str) -> str:
-    try:
-        # Configure the model to use gemini-pro
-        model = genai.GenerativeModel('gemini-pro')
-        
-        # Add farming context to the prompt
-        context = """You are an expert farming assistant with deep knowledge of:
-        - Crop management and cultivation techniques
-        - Pest and disease control
-        - Soil health and fertilization
-        - Irrigation methods
-        - Weather impact on farming
-        - Modern farming technologies
-        - Sustainable farming practices
-        
-        Provide practical, actionable advice for farmers. Be specific and explain concepts clearly.
-        """
-        
-        full_prompt = f"{context}\n\nFarmer's Question: {prompt}\n\nAssistant:"
-        
-        # Generate response with retry logic
-        for _ in range(3):  # Retry up to 3 times
-            try:
-                response = model.generate_content(full_prompt)
-                
-                # Check if response is blocked
-                if response.prompt_feedback.block_reason:
-                    return "I apologize, but I cannot provide an answer to that question. Please try rephrasing it."
-                    
-                # Get response parts
-                response_parts = []
-                for part in response.parts:
-                    if part.text:
-                        response_parts.append(part.text)
-                
-                if response_parts:
-                    return " ".join(response_parts)
-                    
-                return "I apologize, but I couldn't generate a proper response. Please try asking your question again."
-            except Exception as e:
-                print(f"Retry attempt failed: {str(e)}")
-                continue
-    except Exception as e:
-        print(f"Gemini API error: {str(e)}")
-        return "I apologize, but I'm having trouble connecting to my knowledge base. Please try asking your question again."
+    context = """You are an expert farming assistant with deep knowledge of:
+    - Crop management and cultivation techniques
+    - Pest and disease control
+    - Soil health and fertilization
+    - Irrigation methods
+    - Weather impact on farming
+    - Modern farming technologies
+    - Sustainable farming practices
+
+    Provide practical, actionable advice for farmers. Be specific and explain concepts clearly.
+    """
+
+    full_prompt = f"{context}\n\nFarmer's Question: {prompt}\n\nAssistant:"
+
+    model = genai.GenerativeModel('models/gemini-1.5-flash')
+
+
+    for _ in range(3):
+        try:
+            response = await asyncio.to_thread(model.generate_content, full_prompt)
+
+            if hasattr(response, "prompt_feedback") and getattr(response.prompt_feedback, "block_reason", None):
+                return "I apologize, but I cannot provide an answer to that question."
+
+            if hasattr(response, "text") and response.text:
+                return response.text.strip()
+
+        except Exception as e:
+            print(f"Retry failed: {e}")
+            await asyncio.sleep(1)
+
+    return "I apologize, but I couldn't generate a proper response. Please try again."
 
 @app.post("/chat/")
 async def chat_with_farmer(message: ChatMessage):
     try:
-        response = await get_gemini_response(message.message)
-        return {"response": response}
+        return {"response": await get_gemini_response(message.message)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
